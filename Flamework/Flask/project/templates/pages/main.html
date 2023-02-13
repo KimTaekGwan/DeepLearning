@@ -1,0 +1,16 @@
+<html>
+  <head>
+    <title>Item Details</title>
+  </head>
+  <body>
+    <script>
+      //var url = 'http://localhost:8000';
+      fetch("http://127.0.0.1:8000/")
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+        });
+    </script>
+    <h1>hello</h1>
+  </body>
+</html>
