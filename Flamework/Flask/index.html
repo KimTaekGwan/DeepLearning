@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <title>Paging 2</title>
+  </head>
+
+  <body>
+    <div id="app">
+      <table>
+        <caption></caption>
+        <colgroup>
+          <col style="width: 7%" />
+          <col style="width: 63%" />
+          <col style="width: 30%" />
+        </colgroup>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Tags</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <div class="paging">
+        <select id="countPerPage">
+          <option value="10">10</option>
+          <option value="30">30</option>
+          <option value="50">50</option>
+        </select>
+        <div style="display: flex; align-items: center">
+          <!-- Fontawesome Icon -->
+          <i class="fa-solid fa-angles-left" id="first_page"></i>
+          <i class="fa-solid fa-angle-left" id="prev_page"></i>
+          <!--  -->
+          <div class="pages">
+            <span class="active">1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+            <span>5</span>
+          </div>
+          <!-- Fontawesome Icon -->
+          <i class="fa-solid fa-angle-right" id="next_page"></i>
+          <i class="fa-solid fa-angles-right" id="last_page"></i>
+        </div>
+        <div>Total: <span class="total">0</span></div>
+      </div>
+    </div>
+  </body>
+</html>

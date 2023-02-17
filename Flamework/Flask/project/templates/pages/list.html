@@ -1,0 +1,27 @@
+<table>
+  <tr class="text-center table-dark">
+    <th>번호</th>
+    <th style="width: 50%">제목</th>
+  </tr>
+  {% for question in question_list.item %}
+  <tr class="text-center">
+    <td>{{ question.id }}</td>
+    <!-- 글쓴이 추가 -->
+    <td>{{ question.title }}</td>
+  </tr>
+  {% endfor %}
+</table>
+
+<ul class="pagination justify-content-center">
+  <!-- 페이지번호 -->
+  {% for page_num in question_list.max_page %} {% if page_num ==
+  question_list.page %}
+  <li class="page-item active" aria-current="page">
+    <a class="page-link" href="javascript:void(0)">{{ page_num }}</a>
+  </li>
+  {% elif -5 < page_num - question_list.page < 5 %}
+  <li class="page-item">
+    <a class="page-link" href="?page={{ page_num }}">{{ page_num }}</a>
+  </li>
+  {% endif %} {% endfor %}
+</ul>
