@@ -1,11 +1,21 @@
 # myproject/sesac/views/post_views.py
 from flask import Flask, url_for, request, session, redirect, app, jsonify
 from flask import Blueprint, render_template, jsonify
-# from flask_uploads import I
-from ..db import db
+
+from project.db import db
+from project.module import *
+
+import os
+import json
+from tqdm import tqdm
 
 
 bp = Blueprint('main_views', __name__, url_prefix='/')
+
+util = Util()
+ppt = PPT_Info_Extract()
+pdf = PDF_Info_Extract()
+
 
 # /post/pstId=<int:pstId>
 # 특정 게시물로 이동
@@ -55,7 +65,25 @@ def upload():
 @bp.route('/success', methods = ['POST'])  
 def success():  
     if request.method == 'POST':  
-        f = request.files['file']  
-        f.save(f.filename)  
-        return render_template("pages/success.html", name = f.filename)  
-    
+        f = request.files['file']
+        # print(f.filename, f, '\n')
+        
+        path = 'data/input/' + f.filename
+        f.save(path)
+        
+        util.dir_Update(f.filename)
+        
+        name, ext = os.path.splitext(f.filename)
+        if ext == '.pdf':
+            pdf.extract(f.filename)
+            pdf.preprocessing()
+            res = {'noun':pdf.pre_text}
+
+        elif ext in ['.pptx', '.ppt']:
+            ppt.extract(f.filename)
+            ppt.preprocessing()
+            res = {'noun':ppt.pre_text}
+        
+        res = json.dumps(res, ensure_ascii=False)
+        
+        return render_template("pages/success.html", name = f.filename, res=res)

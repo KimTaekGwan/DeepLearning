@@ -3,6 +3,20 @@
     <title>success</title>
   </head>
   <body>
+    <p><button onclick="myFunction({{res}})">Click Me For Noun</button></p>
+
+    <div id="myDIV"></div>
+    <script>
+      function myFunction(text) {
+        var x = document.getElementById("myDIV");
+        if (x.innerHTML === "") {
+          x.innerHTML = text.noun;
+        } else {
+          x.innerHTML = "";
+        }
+      }
+    </script>
+
     <p>File uploaded successfully</p>
     <p>File Name: {{name}}</p>
   </body>
