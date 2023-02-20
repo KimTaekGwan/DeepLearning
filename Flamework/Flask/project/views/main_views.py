@@ -17,8 +17,6 @@ ppt = PPT_Info_Extract()
 pdf = PDF_Info_Extract()
 
 
-# /post/pstId=<int:pstId>
-# 특정 게시물로 이동
 @bp.route('/')
 def grid():
     cursor = db.cursor()
@@ -26,10 +24,8 @@ def grid():
     cursor.execute(sql)
     question_list = cursor.fetchall()
 
-    # 특정 게시물 html 불러오기
     return jsonify(question_list)
 
-# myproject/pybo/views/question_views.py
 	
 @bp.route('/list')
 def ss_list():

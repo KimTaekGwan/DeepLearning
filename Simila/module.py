@@ -15,8 +15,7 @@ from bs4 import BeautifulSoup
 
 class DBUpdater:
     def __init__(self) -> None:
-        pass
-    
+
 
 class Util:
     def __init__(self) -> None:
@@ -118,33 +117,7 @@ class Extract_Info:
         self.image_blob = []
         self.pre_text = None
         
-
-        # print(self.pre_text)
         
-        # # 텍스트 정제 (HTML 태그 제거)
-        # for i, text in enumerate(self.pre_text):
-        #     text = BeautifulSoup(text, 'html.parser').text 
-        #     #print(text) #스토리가 진짜 너무 노잼
-        #     self.pre_text[i] = text
-        # # print(self.pre_text) 
-
-        # # 텍스트 정제 (특수기호 제거)
-        # for i, text in enumerate(self.pre_text):
-        #     text = re.sub(r'[^ ㄱ-ㅣ가-힣]', '', text) #특수기호 제거, 정규 표현식
-        #     #print(document) stale and uninspired
-        #     self.pre_text[i] = text
-
-        # #텍스트 정제 (어간 추출)
-        # for i, text in enumerate(self.pre_text):
-        #     # okt = konlpy.tag.Okt()
-        #     clean_words = self.kiwi.extract_words(text)
-        #     # print(clean_words) #['스토리', '진짜', '노잼']
-        #     text = ' '.join(clean_words)
-        #     # print(text) #스토리 진짜 노잼
-        #     self.pre_text[i] = text
-        # print(self.pre_text)
-
-
 class PDF_Info_Extract(Extract_Info):
     def __init__(self) -> None:
         super().__init__()
@@ -160,7 +133,9 @@ class PDF_Info_Extract(Extract_Info):
         
         self.text_extract(file_name)
         self.image_extract(file_name)
+        
         self.last()
+        self.preprocessing()
     
     def last(self):
         res = [t for t in self.text_dict['total'][0].split('\n') if t]
@@ -256,6 +231,7 @@ class PPT_Info_Extract(Extract_Info):
                 self.group_check(shape)
         
         self.last()
+        self.preprocessing()
     
     def last(self):
         res = []
