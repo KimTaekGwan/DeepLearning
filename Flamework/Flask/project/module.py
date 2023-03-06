@@ -1,7 +1,8 @@
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 
-from pdfminer.high_level import extract_text
+from pdfminer.high_level import extract_text, extract_pages
+from pdfminer.layout import LTTextContainer
 import PyPDF2
 import fitz
 
@@ -16,7 +17,7 @@ from bs4 import BeautifulSoup
 class DBUpdater:
     def __init__(self) -> None:
         pass
-    
+
 
 class Util:
     def __init__(self) -> None:
@@ -117,32 +118,6 @@ class Extract_Info:
         self.img_num = 0
         self.image_blob = []
         self.pre_text = None
-        
-
-        # print(self.pre_text)
-        
-        # # 텍스트 정제 (HTML 태그 제거)
-        # for i, text in enumerate(self.pre_text):
-        #     text = BeautifulSoup(text, 'html.parser').text 
-        #     #print(text) #스토리가 진짜 너무 노잼
-        #     self.pre_text[i] = text
-        # # print(self.pre_text) 
-
-        # # 텍스트 정제 (특수기호 제거)
-        # for i, text in enumerate(self.pre_text):
-        #     text = re.sub(r'[^ ㄱ-ㅣ가-힣]', '', text) #특수기호 제거, 정규 표현식
-        #     #print(document) stale and uninspired
-        #     self.pre_text[i] = text
-
-        # #텍스트 정제 (어간 추출)
-        # for i, text in enumerate(self.pre_text):
-        #     # okt = konlpy.tag.Okt()
-        #     clean_words = self.kiwi.extract_words(text)
-        #     # print(clean_words) #['스토리', '진짜', '노잼']
-        #     text = ' '.join(clean_words)
-        #     # print(text) #스토리 진짜 노잼
-        #     self.pre_text[i] = text
-        # print(self.pre_text)
 
 
 class PDF_Info_Extract(Extract_Info):
@@ -160,10 +135,29 @@ class PDF_Info_Extract(Extract_Info):
         
         self.text_extract(file_name)
         self.image_extract(file_name)
+        
         self.last()
+        self.preprocessing()
     
     def last(self):
-        res = [t for t in self.text_dict['total'][0].split('\n') if t]
+        res = []
+        for text_ls in self.text_dict['page'].values():
+            ls = []
+            for text in text_ls:
+                # print(text)
+                pattern = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$\-@\.&+:/?=]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
+                links = re.findall(pattern, text)
+                if links:
+                    for link in links:
+                        self.link_list.append(link)
+                    text = re.sub(pattern=pattern, repl='', string=text)
+                if text:
+                    ls.append(text)
+                    self.text_dict['total'].append(text)
+            t = self.tp.preprocessing(' '.join(ls))
+            if t:
+                res.append(t)
+        
         self.text_info = '\n'.join(res)
     
     def preprocessing(self):
@@ -188,28 +182,25 @@ class PDF_Info_Extract(Extract_Info):
     def text_extract(self, file_name):
         path = self.util.orignal_dir + file_name
         
-        try:
-            text = extract_text(path)
-        except:
-            with open(path, 'rb') as f:
-                # Create a PDF reader object
-                pdf_reader = PyPDF2.PdfReader(f)
-                # Get the total number of pages
-                num_pages = pdf_reader.pages
-                # Loop through each page and extract the text
-                text = ''
-                for page in num_pages:
-                    text += page.extract_text()
+        text = ''
+        with open(path, 'rb') as f:
+            pdf_reader = PyPDF2.PdfReader(f)
+            lenPage = len(pdf_reader.pages)
+
+        for page_num in range(lenPage):
+            # print(page_num)
+            try:
+                res = extract_text(path, page_numbers=[page_num]).strip()
+                # print(res)
+                self.text_dict['page'][page_num].append(res)
+            except:
+                with open(path, 'rb') as f:
+                    pdf_reader = PyPDF2.PdfReader(f)        
+                    page = pdf_reader.pages[page_num]
+                    res = page.extract_text().strip()
+                    # print(res)
+                    self.text_dict['page'][page_num].append(res)
         
-        pattern = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$\-@\.&+:/?=]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
-        links = re.findall(pattern, text)
-        if links:
-            self.link_list = links
-            text = re.sub(pattern=pattern, repl='', string=text)
-        
-        if text:
-            self.text_dict['total'].append(text)
-    
     def image_extract(self, file_name):
         path = self.util.orignal_dir + file_name
         open_file = fitz.open(path)
@@ -233,7 +224,6 @@ class PDF_Info_Extract(Extract_Info):
             #     print("No images found on page", page_number)
         open_file.close()
 
-
 class PPT_Info_Extract(Extract_Info):
     def __init__(self) -> None:
         super().__init__()
@@ -256,6 +246,7 @@ class PPT_Info_Extract(Extract_Info):
                 self.group_check(shape)
         
         self.last()
+        self.preprocessing()
     
     def last(self):
         res = []
@@ -269,34 +260,25 @@ class PPT_Info_Extract(Extract_Info):
                     for link in links:
                         self.link_list.append(link)
                     text = re.sub(pattern=pattern, repl='', string=text)
-                
                 if text:
                     ls.append(text)
                     self.text_dict['total'].append(text)
             t = self.tp.preprocessing(' '.join(ls))
             if t:
                 res.append(t)
-        
         self.text_info = '\n'.join(res)
         
     def preprocessing(self):
         self.pre_text = ' '.join([t for t in self.text_info.split('\n') if t])
         
         self.pre_text = self.kiwi.space(self.pre_text)
-        # print(1)
-        # print(self.pre_text)
         self.pre_text = BeautifulSoup(self.pre_text, 'html.parser').text 
-        # print(2)
-        # print(self.pre_text)
         self.pre_text = re.sub(r'[^ ㄱ-ㅣ가-힣]', '', self.pre_text) #특수기호 제거, 정규 표현식
         
-        # print(3)
         clean_words = []
         for token, pos, _, _ in self.kiwi.analyze(self.pre_text)[0][0]:
             if pos.startswith('N'):
                 clean_words.append(token)
-        # print(clean_words)
-        # print(clean_words)
         self.pre_text = ' '.join(clean_words)
     
     def group_check(self, shape):
