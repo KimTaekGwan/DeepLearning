@@ -21,3 +21,9 @@ Werkzeug==2.0.3
 wrapt==1.14.0
 WTForms==3.0.1
 pymysql==1.0.2
+python-pptx
+pdfminer
+pdfminer.six
+PyPDF2
+fitz
+frontend
