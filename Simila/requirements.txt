@@ -1,0 +1,9 @@
+python-pptx
+pdfminer
+PyPDF2
+fitz
+beautifulsoup4
+kiwipiepy
+pdfminer.six
+PyMuPDF
+tqdm
