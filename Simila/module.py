@@ -14,6 +14,8 @@ import os
 import shutil
 from bs4 import BeautifulSoup
 
+# pyreverse -o png Simila/module.py
+
 class DBUpdater:
     def __init__(self) -> None:
         pass
